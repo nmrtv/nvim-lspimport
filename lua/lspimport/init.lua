@@ -5,7 +5,10 @@ local LspImport = {}
 ---@return vim.Diagnostic[]
 local get_unresolved_import_errors = function()
     local line, _ = unpack(vim.api.nvim_win_get_cursor(0))
-    local diagnostics = vim.diagnostic.get(0, { lnum = line - 1, severity = vim.diagnostic.severity.ERROR })
+    local diagnostics = vim.diagnostic.get(
+        0,
+        { lnum = line - 1, severity = { vim.diagnostic.severity.WARN, vim.diagnostic.severity.ERROR } }
+    )
     if vim.tbl_isempty(diagnostics) then
         return {}
     end
@@ -36,9 +39,11 @@ end
 ---@param prefix string prefix to filter the completion items
 ---@return table[]
 local lsp_to_complete_items = function(result, prefix)
-    if vim.fn.has("nvim-0.10.0") == 1 then
+    if vim.fn.has("nvim-0.11.0") == 1 then
         -- TODO: use another function once it's available in public API.
         -- See: https://neovim.io/doc/user/deprecated.html#vim.lsp.util.text_document_completion_list_to_complete_items()
+        return vim.lsp.completion._lsp_to_complete_items(result, prefix)
+    elseif vim.fn.has("nvim-0.10.0") == 1 then
         return vim.lsp._completion._lsp_to_complete_items(result, prefix)
     else
         return require("vim.lsp.util").text_document_completion_list_to_complete_items(result, prefix)
