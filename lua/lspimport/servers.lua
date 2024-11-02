@@ -25,11 +25,15 @@ local function pyright_server()
     }
 end
 
+local function ends_with(str, suffix)
+    return str:sub(-#suffix):lower() == suffix:lower()
+end
+
 ---Returns a server class.
 ---@param diagnostic vim.Diagnostic
 ---@return lspimport.Server|nil
 function M.get_server(diagnostic)
-    if diagnostic.source == "Pyright" then
+    if ends_with(diagnostic.source, "pyright") then
         return pyright_server()
     end
 end
